@@ -41,7 +41,7 @@ var parser = (function(){
 					//Make sure the file extention matches up with an existing parser
 					if($.isFunction(parser.formats[fileExt])){
 						//Browsers will add some unneeded text to the base64 encoding. Remove it.
-						var encodedSongData = data.replace("data:text/xml;base64,","");
+						var encodedSongData = data.replace(/^data:.*;base64,/,"");
 						var decodedSongData = utilities.decode(encodedSongData);
 
 						//Pass the decoded song date to the parser
@@ -78,16 +78,20 @@ var parser = (function(){
 
 	var utilities = {
 		decode: function(str){
-			return decodeURIComponent(escape(window.atob( str )));
+			var decoded = window.atob( str );
+			try{
+				return decodeURIComponent(escape(decoded));
+			}catch(ex){
+				return decoded;
+			}
 		},
 		encode:function(str){
 			return window.btoa(unescape(encodeURIComponent( str )));
 		}
 	}
 
-
 	function createSlides(songData){
-		console.log(songData);
+		//console.log(songData);
 
 		$songTitle.text(songData.title);
 
@@ -95,21 +99,20 @@ var parser = (function(){
 		if(songData.slides.length>0) $songSlideContainer.show();
 
 		//Add each info item
-		for (var i = songData.info.length - 1; i >= 0; i--) {
+		for (var i = 0; i < songData.info.length; i++) {
 			var s = songData.info[i];
 
 			$("<li><strong>"+s.name+":</strong> "+s.value+"</li>").appendTo($songInfoList);
 		};
 
 		//Output the slides themselves
-		for (var i = songData.slides.length - 1; i >= 0; i--) {
+		for (var i = 0; i < songData.slides.length; i++) {
 			var s = songData.slides[i];
-
+			//If the title is blank, add a space character so it look even
+			var title = s.title.length < 1 ? '&nbsp;' : s.title;
 			//Create a new HTML clide and add it to the DOM
-			$("<div class='slide'><div class='content'>"+s.lyrics+"</div><div class='label'>"+s.title+"</div></div>").appendTo($songSlideContainer);
+			$("<div class='slide'><div class='content'>"+s.lyrics+"</div><div class='label'>"+title+"</div></div>").appendTo($songSlideContainer);
 		};
-
-		
 	}
 
 	function resetUI(){
@@ -126,6 +129,27 @@ var parser = (function(){
 	//Run this on page load
 	$(setup.pageInit);
 
+	/*
+	var testFile = 'Be Near.sbsong';
+	$.ajax({
+	  url: 'sample files/'+testFile,
+	  type: 'GET',
+	  dataType: 'text/plain',
+	  complete: function(xhr, textStatus) {
+	    var fileExt = testFile.split(".").slice(-1)[0].toLowerCase();
+
+		//Pass the decoded song date to the parser
+		//We will get back a normalized version of teh song content for any file type
+		var normalizedSongData = parser.formats[fileExt](xhr.responseText);
+
+		//Create some slides with the normalized song data
+		createSlides(normalizedSongData);
+
+		//Now make all the slides have the same height
+		setup.equalSlideHeights();
+	  }
+	});
+	*/
 	return {
 		utilities: utilities,
 		displayError: displayError,
