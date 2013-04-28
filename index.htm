@@ -2,26 +2,49 @@
 <html>
 <head>
 	<title>Song Parser!</title>
-	<link rel="stylesheet" type="text/css" href="css/normalize.css">
-	<link rel="stylesheet" type="text/css" href="css/parser.css">
-	<script src="js/modernizr.js"></script>
-	<script src="js/jquery-1.8.3.min.js"></script>
-	<script src="js/jquery.fileDragAndDrop.js"></script>
-	<script src="js/parser.js"></script>
-	<script src="js/formats.pro4.js"></script>
-	<script src="js/formats.sbsong.js"></script>
+	<link rel="stylesheet" type="text/css" href="styles/bootstrap.css">
+	<link rel="stylesheet" type="text/css" href="styles/parser.css">
+	<script src="scripts/lib/modernizr.js"></script>
+	<script src="scripts/lib/jquery-2.0.0.min.js"></script>
+	<script src="scripts/bootstrap/bootstrap-affix.js"></script>
+	<script src="scripts/plugins/jquery.fileDragAndDrop.js"></script>
+	<script src="scripts/parser.js"></script>
+	<script src="scripts/formats.pro4.js"></script>
+	<script src="scripts/formats.sbsong.js"></script>
+	<script src="scripts/outputs.display.js"></script>
 </head>
 <body>
-	<a href="http://github.com/chrismbarr/SongParserJS"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+	<a href="http://github.com/chrismbarr/SongParserJS"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
+	<div id="main" class="container">
+		<div class="row">
+			<div class="span3">
+				<aside id="sidebar">
+					<h3 class="text-center">SongParser JS</h3>
 
-	<div id="drop-area">
-		<p>Drag a<br/><strong>Song File</strong><br/>Here</p>
+					<div id="drop-area" class="well">
+						<p>Drag a<br/><strong>Song File</strong><br/>Here</p>
+					</div>
+					
+					<label for="js-output">Then&hellip;</label>
+					<select id="js-output" class="input-block-level">
+						<option value="display">Display The Lyrics Here</option>
+					</select>
+					<small class="muted">(More options wil be added here later&hellip;)</small>
+				</aside>
+			</div>
+			<div class="span9">
+				<div id="begin" class="hero-unit">
+					<h2 class="muted">The lyrics will be shown over here!</h2>
+					<p>This can display lyrics from ProPresenter and SongShowPlus files right in your browser! Just drop a song file in the area on the left!</p>
+				</div>
+
+				<div id="error-display" class="hide alert alert-error"></div>
+			
+				<h3 id="song-title"></h3>
+				<ul id="song-info"></ul>
+				<ul id="slides-container" class="hide thumbnails"></ul>
+			</div>
+		</div>
 	</div>
-	<div id="error-display"></div>
-	<div id="top">
-		<h1 id="song-title"></h1>
-		<ul id="song-info"></ul>
-	</div>
-	<div id="song-slides"></div>
 </body>
 </html>
