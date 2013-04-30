@@ -5,7 +5,16 @@
 =======================================================*/
 
 (function () {
-	parser.formats.sbsong = function(songData, fileName){
+
+	var THIS_FORMAT = 'songshowplus';
+	parser.formats[THIS_FORMAT] = {};
+
+	parser.formats[THIS_FORMAT].testExtension = function(fileExt){
+		return /sbsong/i.test(fileExt);
+	};
+
+	//Extend the formats object on the parser to allow for parsing SongShowPlus files
+	parser.formats[THIS_FORMAT].convert = function(songData, fileName){
 		//We don't want any properties XML tags which can sometimes begin the file.
 		//Splitting these out and then taking teh first array item can prevent this.
 		//Each song sections seems to be split up by a percent sign, so make an array by splitting on that
@@ -26,13 +35,23 @@
 		};
 	};
 
+	//===================================
+	//PRIVATE FUNCTIONS
+	//===================================
+
+	//Regex pattern AS A STRING to match invisible control characters
+	//Slashes are double escaped here so it can be in a string!
+	var _patternInvisiblesStr = "[\\xA0\\x00-\\x09\\x0B\\x0C\\x0E-\\x1F\\x7F]";
+	//Same pattern, but as a real RexExp object
+	var _invisibles = new RegExp(_patternInvisiblesStr);
+
 	function _getInfo (firstSection, keywords, fileName) {
 		//Split the info up into an array by the invisible characters
-		var infoArray = firstSection.split(patterns.invisibles);
+		var infoArray = firstSection.split(_invisibles);
 		
 		//Now loop through the array and remove all empty items and items that are only 1 character long
 		infoArray = $.grep(infoArray,function(n){
-			var item = $.trim(n);
+			var item = $.trim(n).replace(/\r\n\t/g,"");
 			return item.length>1 ? item : false;
 		});
 
@@ -84,7 +103,8 @@
 	function _getSlides (sections) {
 		//Sections tend to begin with N number of control characters, a random print character, more control characters, and then the title "Verse 1" or soemthing
 		//After that is the actual song lyrics, but it may be preceeded by one non-word character
-		var slidePattern = /^[\xA0\x00-\x09\x0B\x0C\x0E-\x1F\x7F]+.{1}[\xA0\x00-\x09\x0B\x0C\x0E-\x1F\x7F]+(.+)[\xA0\x00-\x09\x0B\x0C\x0E-\x1F\x7F]+\W*([\s\S]+)/m;
+		//Slashes are double escaped here so it can be in a string!
+		var slidePattern = new RegExp("^" + _patternInvisiblesStr + "+.{1}" + _patternInvisiblesStr + "+(.+)" + _patternInvisiblesStr + "+\\W*([\\s\\S]+)", "m");
 
 		var slideArray = [];
 
@@ -93,12 +113,12 @@
 			
 			//Run the regex on each section to split out the slide title from the lyrics
 			var matches = sections[i].match(slidePattern);
-			
+
 			//Remove whitespace from the title
-			var slideTitle = $.trim(matches[1]);
+			var slideTitle = $.trim(matches[1]).replace(_invisibles, "");
 
 			//Remove any more invisibles from the lyrics and remove whitespace
-			var slideLyrics = $.trim(matches[2].replace(patterns.invisibles,""));
+			var slideLyrics = $.trim(matches[2]).replace(_invisibles, "");
 			
 			//Save it to the array!
 			slideArray.push({
@@ -123,7 +143,7 @@
 
 	function _getKeywordsFromLastSlide(lastSlideRaw) {
 
-		var infoArray = lastSlideRaw.split(patterns.invisibles);
+		var infoArray = lastSlideRaw.split(_invisibles);
 		//Now loop through the array and remove all empty items and items that are only 1 character long
 		infoArray = $.grep(infoArray,function(n){
 			var item = $.trim(n);
@@ -132,8 +152,8 @@
 
 		//If we have at least 3 sections, then we have keywords
 		if(infoArray.length>2){
-			//They keywords are the entire array except for the first two items
-			var keywords = infoArray.splice(2).join(", ");
+			//The keywords are the entire array except for the first two items
+			var keywords = infoArray.splice(2).join(", ").replace(/\r\n\t/g,"");
 
 			//Return the last slide minus the keywords, then parse out the optional begining non-word character
 			var lastLyrics = infoArray[1].match(/^\W*([\s\S]+)/m)[1];
@@ -148,9 +168,5 @@
 		return false;
 		
 	}
-
-	var patterns = {
-		invisibles: /[\xA0\x00-\x09\x0B\x0C\x0E-\x1F\x7F]/
-	};
 
 })();
