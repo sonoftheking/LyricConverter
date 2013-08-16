@@ -1,3 +1,10 @@
+/*!
+ * LICENSE:
+ * CC BY-NC-SA 3.0
+ * This work is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
+ * http://creativecommons.org/licenses/by-nc-sa/3.0/deed.en_US
+ */
+ 
 var parser = (function(){
 
 	var utilities = {
@@ -51,6 +58,7 @@ var parser = (function(){
 				parser.errorList.push("The file <strong>"+fullFileName+"</strong> cannot be parsed because <strong>."+fileExt.toUpperCase()+"</strong> files are not supported!")
 			}
 		}catch(ex){
+			//console.error(ex);
 			parser.errorList.push("There was an error reading the file <strong>"+fullFileName+"</strong>");
 		}
 	}
